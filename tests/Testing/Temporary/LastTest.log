@@ -1,0 +1,18 @@
+Start testing: Apr 20 15:52 CEST
+----------------------------------------------------------
+1/1 Testing: QueueTest
+1/1 Test: QueueTest
+Command: "/home/takuma/gbemu/tests/queuetest"
+Directory: /home/takuma/gbemu/tests
+"QueueTest" start time: Apr 20 15:52 CEST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"QueueTest" end time: Apr 20 15:52 CEST
+"QueueTest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Apr 20 15:52 CEST

@@ -1,0 +1,4 @@
+/home/takuma/gbemu/build/CMakeFiles/queue.dir
+/home/takuma/gbemu/build/CMakeFiles/emu.dir
+/home/takuma/gbemu/build/CMakeFiles/edit_cache.dir
+/home/takuma/gbemu/build/CMakeFiles/rebuild_cache.dir

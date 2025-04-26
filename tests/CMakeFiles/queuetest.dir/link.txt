@@ -1,0 +1,1 @@
+/usr/bin/cc -g CMakeFiles/queuetest.dir/queuetest.c.o -o queuetest  libqueue.a 
