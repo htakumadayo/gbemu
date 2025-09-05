@@ -1,6 +1,7 @@
 #include "misc/queue.h"
 #include "common.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 
 void enqueue(struct Node** head, void* new_ptr){
@@ -14,6 +15,8 @@ void enqueue(struct Node** head, void* new_ptr){
     new_node->next = *head;
 
     *head = new_node;
+
+    printf("Something added to queue\n");
 }
 
 void* dequeue(struct Node** head){
@@ -35,5 +38,6 @@ void* dequeue(struct Node** head){
     else{
         *head = NULL;
     }
+    printf("Dequed\n");
     return out_ptr;
 }

@@ -1,0 +1,6 @@
+rgbasm test.asm -o test.o
+rgblink -o test.gb test.o
+rgbfix -v -p 0xFF test.gb
+
+
+rgbasm test.asm -o test.o && rgblink -o test.gb test.o && rgbfix -v -p 0xFF test.gb

@@ -6,7 +6,8 @@
 
 void readData(FILE* p, void* tg, unsigned int pos, size_t cnt);
 
-void readCart(FILE* c_p, struct Header* out){
+// Returns ROM size in bytes.
+size_t readCart(FILE* c_p, struct Header* out){
     readData(c_p, out->entry, 0x100, 4);
     readData(c_p, out->nlogo, 0x104, 48);
     readData(c_p, out->title, 0x134, 16);
@@ -17,6 +18,7 @@ void readCart(FILE* c_p, struct Header* out){
     size_t rom_bytes = 1024 * 32 * (1 << out->romSize);
     out->data = malloc(rom_bytes);
     readData(c_p, out->data, 0, rom_bytes);
+    return rom_bytes;
 }
 
 uint8_t checkSum(FILE* c_p){

@@ -1,1 +1,5 @@
 build/
+src/backup.c
+.vscode/
+roms/blargg/
+.DS_Store

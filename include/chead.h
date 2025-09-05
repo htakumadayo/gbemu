@@ -15,7 +15,7 @@ struct Header{
     uint8_t     checksum;
 };
 
-void readCart(FILE* cart_ptr, struct Header* out);
+size_t readCart(FILE* cart_ptr, struct Header* out);
 uint8_t checkSum(FILE* cart_ptr);
 void testCart(FILE* rom_ptr, struct Header* header);
 
