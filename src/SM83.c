@@ -16,6 +16,23 @@ const uint8_t to_r16stk[] = {
     [PAIR_SP] = PAIR_AF,  
 };
 
+void initCPU(struct SM83* cpu){
+    cpu->reg.A = 0x01;
+    cpu->reg.F = 0xB0;
+    cpu->reg.C = 0x13;
+    cpu->reg.B = 0x00;
+    cpu->reg.D = 0;
+    cpu->reg.E = 0xD8;
+    cpu->reg.H = 0x01;
+    cpu->reg.L = 0x4D;
+    cpu->reg.SP = 0xFFFE;
+    cpu->reg.PC = 0x0100;
+    cpu->reg.IME = 0;
+    cpu->reg.STAT = 0;
+    cpu->halt_mode = 0;
+}
+
+
 uint8_t memoryRead(const uint8_t* memory, uint16_t address){
     return memory[address];
 }

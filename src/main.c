@@ -31,6 +31,7 @@ int main(int argc, char* argv[]){
 
     fclose(rom_ptr);
     free(header.data);
+    printf(">> EMULATOR TERMINATED <<\n");
     return 0;
 }
 
@@ -42,19 +43,7 @@ void execute(size_t rom_bytes, uint8_t* rom_data){
 
     // Later dynamically allocate this
     struct SM83 cpu;
-    cpu.reg.A = 0x01;
-    cpu.reg.F = 0xB0;
-    cpu.reg.B = 0x00;
-    cpu.reg.C = 0x13;
-    cpu.reg.D = 0;
-    cpu.reg.E = 0xD8;
-    cpu.reg.H = 0x01;
-    cpu.reg.L = 0x4D;
-    cpu.reg.SP = 0xFFFE;
-    cpu.reg.PC = 0x0100;
-    cpu.reg.IME = 0;
-    cpu.reg.STAT = 0;
-    cpu.halt_mode = 0;
+    initCPU(&cpu);
 
 #ifdef CPU_DEBUG
     uint16_t start;
@@ -78,6 +67,7 @@ void execute(size_t rom_bytes, uint8_t* rom_data){
 
     while(cpu_idle_cycle != -1 && user_quit != -1){   // 60 FPS loop
         uint64_t t1 = curtime();
+        beginFrame(p_lcd);
         
         for(uint32_t i=0; i < MCYCLES_PER_FRAME; ++i){  // MCYCLES-loop for that frame
             tickTimer(memory, &timer);
@@ -103,6 +93,13 @@ void execute(size_t rom_bytes, uint8_t* rom_data){
 
             // Serial output
             processSerialTransfer(memory, stdout);
+
+            // PPU 4 DOTS HERE
+            /*
+            Draw to dummy array -> upload to gpu on updateLCD()
+            */
+            process4Dots(p_lcd, memory);
+
         }  // END of MCYCLES-loop
 
         user_quit = LCDevent(p_lcd);
@@ -119,7 +116,6 @@ void execute(size_t rom_bytes, uint8_t* rom_data){
 
     destroyLCD(p_lcd);
     free(p_lcd);
-    printf("END\n");
 }
 
 

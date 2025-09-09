@@ -10,4 +10,8 @@
 
 #define MAX(a, b) ((b) > (a) ? (b) : (a))
 
+#define BIT_N(target, N) ((target & (1 << N)) >> N)
+#define SET(target, N) ((1 << (N)) | (target))
+#define RESET(target, N) (     (~(1 << (N))) & (target)    )
+
 #endif 

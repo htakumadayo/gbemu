@@ -90,6 +90,7 @@ struct SM83{
     int halt_mode;
 };
 
+void initCPU(struct SM83* cpu);
 
 uint8_t memoryRead(const uint8_t* memory, uint16_t address);
 void memoryWrite(uint8_t* memory, uint16_t address, uint8_t value);
@@ -126,10 +127,6 @@ uint8_t carry8bitSub(uint8_t a, uint8_t b, uint8_t c);
 // 12th bit carry
 uint8_t halfCarry16bitAdd(uint16_t a, uint16_t b);
 uint8_t carry16bitAdd(uint16_t a, uint16_t b);
-
-#define BIT_N(target, N) ((target & (1 << N)) >> N)
-#define SET(target, N) ((1 << (N)) | (target))
-#define RESET(target, N) (     (~(1 << (N))) & (target)    )
  
 void debugRegister(struct Register* reg);
 void debugMemory(const uint8_t* memory, uint16_t start);
