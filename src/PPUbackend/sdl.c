@@ -83,38 +83,74 @@ void process4Dots(struct LCD* lcd, uint8_t* memory){
         // pass
     }
     else if(mode < mode2 + mode3){  // Mode 3: Drawing pixels (Penalties ignored)
+        // Current drawing pixel
         uint16_t scrY = line;
         uint16_t scrX = mode - mode2;
 
+        // Register values
         const uint8_t SCX = memory[ADDR_SCX];
         const uint8_t SCY = memory[ADDR_SCY];
         const uint8_t palette = memory[ADDR_BGP];
-        uint16_t bgY = (scrY + SCY) % 256;
+        const uint8_t WX = memory[ADDR_WX];
+        const uint8_t WY = memory[ADDR_WY];
+        const uint8_t window_enabled = BIT_N(LCDC, 5);
 
-        uint16_t bg_tiles_offset = (BIT_N(LCDC, 3) ? 0x9C00 : 0x9800);  // 0: 9800-9BFF, 1: 9C00-9FFF
-        int tile_area_mode = BIT_N(LCDC, 4);
+        // bgY: the pixel y-position on the tilemap
+        //uint16_t bgY = (scrY + SCY) % 256;
+
+        // Offset specifying which tilemap is used for the background. 0: 9800-9BFF, 1: 9C00-9FFF
+        #define OFFSET(BIT) (BIT_N(LCDC, (BIT)) ? 0x9C00 : 0x9800)
+        uint16_t bg_tiles_offset = OFFSET(3);
+        uint16_t window_tiles_offset = OFFSET(6);
+
+        // Addressing mode for BG and window tiles. 0: $8800/signed address, 1: $8000/unsigned
+        int tile_addr_mode = BIT_N(LCDC, 4);
+
+        // Window top-left corner coordinates on screen
+        int16_t window_posx = (int16_t)WX - 7;
+        int16_t window_posy = WY;
 
         for(uint8_t i=0; i<4; ++i){
             // Draw background
-            uint16_t bgX = (scrX + SCX) % 256;
 
-            uint16_t tile_id = (bgX / TILE_DIM) + 32 * (bgY / TILE_DIM);
-            uint8_t tile_addr = memory[tile_id + bg_tiles_offset];
+            // If background is covered by window
+            uint8_t draw_window = (window_enabled && scrX >= window_posx && scrY >= window_posy);
+            uint16_t tilemap_x, tilemap_y;  // Pixel position on tilemap
+            if(draw_window){
+                tilemap_x = (scrX - window_posx) % 256;
+                tilemap_y = (scrY - window_posy) % 256;
+            }
+            else{
+                tilemap_x = (scrX + SCX) % 256;
+                tilemap_y = (scrY + SCY) % 256;
+            }
+
+            // Pixel coordinates on tile
+            uint16_t pixelX = 7 - (tilemap_x & 0x07); // In fact, bit 7 is the leftmost pixel
+            uint16_t pixelY = tilemap_y & 0x07;
+
+            // Tile id that the pixel belongs to
+            uint16_t tile_id = (tilemap_x >> TILE_DIM_POW) + 32 * (tilemap_y >> TILE_DIM_POW);
+
+            // Below: Fetch address of the tile
+            uint16_t tiles_offset = (draw_window ? window_tiles_offset : bg_tiles_offset);
+            uint8_t tile_addr = memory[tile_id + tiles_offset]; // "Raw" address given by the tilemap. Still need to interpret it according to addressing mode
             uint16_t tile_addr_on_ram;
-            if(tile_area_mode){  // $8000
+            if(tile_addr_mode){  // $8000 + unsigned
                 tile_addr_on_ram = 0x8000 + 16*tile_addr;  // 16 bytes per tile
             }
             else{  // $ 9000 + signed
                 tile_addr_on_ram = 0x9000 + *((int8_t*)&tile_addr) * 16;
             }
             
-            uint16_t pixelX = 7 - (bgX & 0x07); // In fact, bit 7 is the leftmost pixel
-            uint16_t pixelY = bgY & 0x07;
+            // Memory address of the pixel line. The 2 factor accounts the way pixels are stored
             uint16_t ram_line_byte_addr = tile_addr_on_ram + pixelY*2;
         
-
+            // Fetch color id (which will be converted to color using palette)
             uint8_t color_id = BIT_N(memory[ram_line_byte_addr], pixelX) + 0x02 * BIT_N(memory[ram_line_byte_addr + 1], pixelX);
+            // 2 bits per color, mask out unneeded parts
             uint32_t color = PALETTE_COLOR[(palette >> (2*color_id)) & 0x03];
+            // Get pixel pointer of the actual display (ChatGPT)
             uint32_t* pixel_ptr = (uint32_t*)((uint8_t*)lcd->pixels + scrY*lcd->pitch) + scrX;
             *pixel_ptr = color;
 

@@ -10,7 +10,7 @@
 
 
 #define DOTS_PER_SCANLINE 456
-#define TILE_DIM 8
+#define TILE_DIM_POW 3  // 8 pixel = 2^3 pixel
 
 extern const uint32_t PALETTE_COLOR[]; 
 
