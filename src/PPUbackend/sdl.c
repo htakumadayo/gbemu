@@ -164,11 +164,6 @@ void process4Dots(struct LCD* lcd, uint8_t* memory){
     uint16_t line = lcd->dot / DOTS_PER_SCANLINE;
     memory[ADDR_LY] = line;
 
-    // for(int i = 0; i < 16; i++){
-    //     printf("%2x ", memory[0x8580 + i]);
-    // }
-    // printf("\n");
-
     uint8_t stat = memory[ADDR_STAT];
     uint8_t LYC_condition = (line == memory[ADDR_LYC]);
     if(LYC_condition){

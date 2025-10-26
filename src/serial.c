@@ -5,6 +5,8 @@
 
 #define SC_ENABLE 7
 
+// I think there's a bug but IDK
+// Doesn't matter anyway
 void processSerialTransfer(uint8_t* memory, FILE* out){
     uint8_t SC = memoryRead(memory, ADDR_SC);
     if(BIT_N(SC, SC_ENABLE)){

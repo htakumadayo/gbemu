@@ -97,13 +97,10 @@ void execute(size_t rom_bytes, uint8_t* rom_data){
             }
 
             // Serial output
-            // This causes some problems for unknown reasons so disable for now
+            // This causes some problems for unknown reasons so disabled for now
             //processSerialTransfer(memory, stdout);
 
             // PPU 4 DOTS HERE
-            /*
-            Draw to dummy array -> upload to gpu on updateLCD()
-            */
             process4Dots(p_lcd, memory);
 
         }  // END of MCYCLES-loop
