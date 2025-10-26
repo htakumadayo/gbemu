@@ -95,7 +95,7 @@ uint8_t getColorFromPalette(uint8_t palette, uint8_t color_id){
 // If BG pixel should be drawn instead, returns 255.
 uint8_t getObjPixel(struct LCD* lcd, uint8_t* memory, uint8_t scrX, uint8_t scrY, uint8_t double_height_mode){
     // BG over OBJ (Bit 7) -> Implement later
-    // Ignore attributes except palette (Bit 4) for now.
+    // Ignore attributes except palette (Bit 4) and xflip (Bit 5) for now.
 
     // Priority of OPAQUE pixels:
     // 1. X coordinate: object with smaller x coordinate wins
@@ -110,16 +110,20 @@ uint8_t getObjPixel(struct LCD* lcd, uint8_t* memory, uint8_t scrX, uint8_t scrY
         uint16_t obj_addr = lcd->render_obj_list[i];
         int16_t obj_x = OBJX(memory, obj_addr);
         int16_t obj_y = OBJY(memory, obj_addr);
-        uint8_t tile_idx = memory[obj_addr + 2];
-        uint8_t attributes = memory[obj_addr + 3];
+        uint8_t tile_idx = memory[obj_addr + OAM_TILEIDX];
+        uint8_t attributes = memory[obj_addr + OAM_ATTR];
 
-        uint8_t palette_id = BIT_N(attributes, 4);
+        uint8_t palette_id = BIT_N(attributes, OAM_ATTR_PALETTE);
         int second_tile = (scrY - obj_y) / TILE_DIM; // 0: first tile, 1: second tile
         int on_tile_x = scrX - obj_x;
         int on_tile_y = (scrY - obj_y) % TILE_DIM;
 
         // Skip if pixel not contained in the object
         if(0 <= on_tile_x && on_tile_x < TILE_DIM){
+            if(!BIT_N(attributes, OAM_ATTR_XFLIP)){
+                on_tile_x = (TILE_DIM - 1) - on_tile_x;
+            }
+
             // Fetch palette color id
             uint16_t raw_tile_idx = (double_height_mode ? ((tile_idx & 0xFE) + second_tile) : tile_idx);
             uint8_t color_id = getPixelColorIDX(memory, raw_tile_idx, 1, on_tile_x, on_tile_y);
@@ -159,6 +163,11 @@ void process4Dots(struct LCD* lcd, uint8_t* memory){
     uint16_t mode = lcd->dot % DOTS_PER_SCANLINE;
     uint16_t line = lcd->dot / DOTS_PER_SCANLINE;
     memory[ADDR_LY] = line;
+
+    // for(int i = 0; i < 16; i++){
+    //     printf("%2x ", memory[0x8580 + i]);
+    // }
+    // printf("\n");
 
     uint8_t stat = memory[ADDR_STAT];
     uint8_t LYC_condition = (line == memory[ADDR_LYC]);
@@ -201,7 +210,7 @@ void process4Dots(struct LCD* lcd, uint8_t* memory){
     }
     
     // Object dimension
-    uint8_t double_height = BIT_N(LCDC, 2);  // 0: 8x8, 1: 8x16
+    uint8_t double_height = BIT_N(LCDC, LCDC_OBJ_SIZE);  // 0: 8x8, 1: 8x16
 
     if(mode < mode2 && !lcd->oam_scan_done){   // Mode 2: OAM scan
         UPDATE_STAT_MODE(memory, MODE2);
@@ -255,19 +264,11 @@ void process4Dots(struct LCD* lcd, uint8_t* memory){
 
         // Offset specifying which tilemap is used for the background. 0: 9800-9BFF, 1: 9C00-9FFF
         #define OFFSET(BIT) (BIT_N(LCDC, (BIT)) ? 0x9C00 : 0x9800)
-        uint16_t bg_tiles_offset = OFFSET(3);
-        uint16_t window_tiles_offset = OFFSET(6);
-
-        // printf("========\n");
-        // for(uint16_t ti = 0; ti < 5; ti++){
-        //     for(uint16_t i = 0; i < 20; i++){
-        //         printf("%02x ", memory[0x9800 + i + ti*20]);
-        //     }
-        //     printf("\n");
-        // }
+        uint16_t bg_tiles_offset = OFFSET(LCDC_BG_TILEMAP);
+        uint16_t window_tiles_offset = OFFSET(LCDC_WINDOW_TILEMAP);
 
         // Addressing mode for BG and window tiles. 0: $8800/signed address, 1: $8000/unsigned
-        int tile_addr_mode = BIT_N(LCDC, 4);
+        int tile_addr_mode = BIT_N(LCDC, LCDC_BGWINDOW_TILES);
 
         // Window top-left corner coordinates on screen
         int16_t window_posx = (int16_t)WX - 7;

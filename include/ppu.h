@@ -18,6 +18,28 @@
 #define OBJECT_LENGTH 4
 #define MAX_OBJ_PER_LINE 10
 
+#define OAM_YPOS 0
+#define OAM_XPOS 1
+#define OAM_TILEIDX 2
+#define OAM_ATTR 3
+
+#define OAM_ATTR_PRIORITY 7
+#define OAM_ATTR_YFLIP    6
+#define OAM_ATTR_XFLIP    5
+#define OAM_ATTR_PALETTE  4
+#define OAM_ATTR_BANK     3   // Only CGB so should not be used
+
+#define LCDC_PPU_ENABLE 7
+#define LCDC_WINDOW_TILEMAP 6
+#define LCDC_WINDOW_ENABLE 5
+#define LCDC_BGWINDOW_TILES 4
+#define LCDC_BG_TILEMAP 3
+#define LCDC_OBJ_SIZE 2
+#define LCDC_OBJ_ENABLE 1
+#define LCDC_BGWINDOW_ENABLE 0
+
+
+
 extern const uint32_t PALETTE_COLOR[]; 
 
 struct LCD;
