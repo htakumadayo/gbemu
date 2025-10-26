@@ -20,7 +20,7 @@ find_package(SDL3 REQUIRED)
 
 #include_directories(${SDL3_INCLUDE_DIRS})
 
-add_executable(emu src/main.c src/chead.c src/SM83.c src/PPUbackend/sdl.c src/serial.c src/timer.c)
+add_executable(emu src/main.c src/chead.c src/SM83.c src/PPUbackend/sdl.c src/serial.c src/timer.c src/joypadbackend/sdl.c)
 
 if(DEBUG_MODE)
     add_compile_definitions(CPU_DEBUG)

@@ -23,9 +23,15 @@
 #define ADDR_SCX  0xFF43
 #define ADDR_WY   0xFF4A
 #define ADDR_WX   0xFF4B
+#define ADDR_DMA  0xFF46
 #define ADDR_BGP  0xFF47
 #define ADDR_OBP0 0xFF48
 #define ADDR_OBP1 0xFF49
+
+// Joypad input
+#define ADDR_JOYP 0xFF00
+
+
 
 
 #endif

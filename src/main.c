@@ -6,6 +6,7 @@
 #include "ppu.h"
 #include "serial.h"
 #include "timer.h"
+#include "joypad.h"
 
 
 void execute(size_t rom_bytes, uint8_t* rom_data);
@@ -55,24 +56,28 @@ void execute(size_t rom_bytes, uint8_t* rom_data){
     char* string = malloc(buffer_size);
 #endif
 
-    struct Timer timer;
-    initTimer(&timer);
-
+    struct Timer* p_timer = initTimer();
     struct LCD* p_lcd = initLCD();
+    struct Joypad* p_joypad = initJoypad();
 
     int user_quit = 0;
     int cpu_idle_cycle = 0;
     const int MCYCLES_PER_FRAME = (CLOCKF / 60);
     const uint64_t FRAME_PERIOD = (1.0 / 60.0) * 1e9;
 
+
     while(cpu_idle_cycle != -1 && user_quit != -1){   // 60 FPS loop
         uint64_t t1 = curtime();
         beginFrame(p_lcd);
+        tickDiv(memory, p_timer, t1);
         
         for(uint32_t i=0; i < MCYCLES_PER_FRAME; ++i){  // MCYCLES-loop for that frame
-            tickTimer(memory, &timer);
+            tickTimer(memory, p_timer);
             --cpu_idle_cycle;
             if(cpu_idle_cycle == -1){
+                // Update joypad register?
+                updateJoypadRegister(p_joypad, memory);
+
                 cpu_idle_cycle = step(&cpu, memory);
                 // DEBUG thing
 #ifdef CPU_DEBUG
@@ -92,7 +97,8 @@ void execute(size_t rom_bytes, uint8_t* rom_data){
             }
 
             // Serial output
-            processSerialTransfer(memory, stdout);
+            // This causes some problems for unknown reasons so disable for now
+            //processSerialTransfer(memory, stdout);
 
             // PPU 4 DOTS HERE
             /*
@@ -107,6 +113,7 @@ void execute(size_t rom_bytes, uint8_t* rom_data){
         int64_t sleep_time = (int64_t)FRAME_PERIOD - (int64_t)(curtime() - t1);
 
         sleep(MAX(sleep_time, 0));
+        
     } // END of 60 FPS loop
 
 #ifdef CPU_DEBUG
@@ -116,6 +123,8 @@ void execute(size_t rom_bytes, uint8_t* rom_data){
 
     destroyLCD(p_lcd);
     free(p_lcd);
+    free(p_joypad);
+    free(p_timer);
 }
 
 

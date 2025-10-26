@@ -137,7 +137,6 @@ void debugMemory(const uint8_t* memory, uint16_t start);
 // (Strictly) Negative values mean other stuff (TBD)
 int step(struct SM83* cpu, uint8_t* memory);
 
-#define MATCHM(inst, target, mask) (((inst) & (mask)) == (target))
-
+void setInterruptFlag(uint8_t* memory, uint8_t bit);
 
 #endif

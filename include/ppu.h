@@ -11,6 +11,12 @@
 
 #define DOTS_PER_SCANLINE 456
 #define TILE_DIM_POW 3  // 8 pixel = 2^3 pixel
+#define TILE_DIM (1 << TILE_DIM_POW)
+
+#define START_OAM 0xFE00
+#define END_OAM 0xFE9F
+#define OBJECT_LENGTH 4
+#define MAX_OBJ_PER_LINE 10
 
 extern const uint32_t PALETTE_COLOR[]; 
 

@@ -1,4 +1,5 @@
 #include "SM83.h"
+#include "registers.h"
 #include <string.h>
 
 const uint16_t HANDLER_ADDR[] = {
@@ -229,6 +230,10 @@ uint8_t carry16bitAdd(uint16_t a, uint16_t b){
     return (c>0 ? 1 : 0);
 }
 
+
+void setInterruptFlag(uint8_t* memory, uint8_t bit){
+    DIRECT_SET(memory[ADDR_IF], bit);
+}
 
 void debugRegister(struct Register* reg){
     printf("==== REGISTER ====\n");
